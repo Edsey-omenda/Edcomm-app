@@ -1,0 +1,28 @@
+{
+    "nav": {
+        "home": "Home",
+        "products": {
+            "products": "Products",
+            "item1": "Admin",
+            "item2": "Users"
+        },
+        "orders": {
+            "orders": "Orders"
+        }
+    },
+    "products": {
+         "details": "Details"
+    },
+    "common": {
+        "add": "Add",
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleted": "Deleted",
+        "cancel": "Cancel",
+        "update": "Update",
+        "deleteConfirmation": "Are you sure you want to delete "
+    },
+    "forms": {
+        "nameRequired": "Name is required"
+    }
+}

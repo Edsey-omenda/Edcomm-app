@@ -1,0 +1,7 @@
+<svg width="220" height="60" viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="30" cy="30" r="28" stroke="#007BFF" stroke-width="4" fill="white"/>
+  <path d="M22 30h15l-2 6h-11l-2-6z" fill="#007BFF"/>
+  <circle cx="25" cy="38" r="2" fill="#007BFF"/>
+  <circle cx="35" cy="38" r="2" fill="#007BFF"/>
+  <text x="60" y="38" fill="#007BFF" font-size="24" font-family="Arial, sans-serif">edcomm</text>
+</svg>
