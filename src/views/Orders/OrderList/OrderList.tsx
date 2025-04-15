@@ -5,18 +5,17 @@ import OrderDeleteConfirmation from './components/OrderDeleteConfirmation';
 import { injectReducer } from '@/store';
 import reducer from './store';
 
-injectReducer('ordersHistory', reducer)
+injectReducer('ordersList', reducer)
 
 const OrderList = () => {
 
     return (
         <AdaptableCard className="h-full" bodyClass="h-full">
             <div className="lg:flex items-center justify-between mb-4">
-                <h3 className="mb-4 lg:mb-0">Orders</h3>
-                <OrdersTableTools />
+                {/* <OrdersTableTools /> */}
             </div>
             <OrdersTable />
-            <OrderDeleteConfirmation />
+            {/* <OrderDeleteConfirmation /> */}
         </AdaptableCard>
     )
 }

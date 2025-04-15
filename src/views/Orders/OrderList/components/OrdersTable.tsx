@@ -7,21 +7,19 @@ import type {
     ColumnDef,
     Row,
 } from '@/components/shared/DataTable'
-import { getOrdersHistory, setOrderHistoryData, useAppDispatch, useAppSelector } from '../store'
-import dayjs from 'dayjs'
+import { getAdminOrders, getMyOrders, setAdminTableData, setMyTableData, useAppDispatch, useAppSelector } from '../store'
 import cloneDeep from 'lodash/cloneDeep'
 import Tag from '@/components/ui/Tag'
 import { HiOutlineEye } from 'react-icons/hi'
 import useThemeClass from '@/utils/hooks/useThemeClass'
 import { useNavigate } from 'react-router-dom'
 
-
 const ActionColumn = ({ row }: { row: any }) => {
     const { textTheme } = useThemeClass()
     const navigate = useNavigate()
 
     const onView = useCallback(() => {
-        navigate(`/orderlist/${row.Id}`, { state: { CreatedDate: row.CreatedDate } });
+        navigate(`/orderlist/${row.Id}`)
         //console.log("Order-details", row)
     }, [navigate, row])
 
@@ -40,78 +38,52 @@ const ActionColumn = ({ row }: { row: any }) => {
 }
   
 const OrdersTable = () => {
+
     const tableRef = useRef<DataTableResetHandle>(null)
-
-
     const dispatch = useAppDispatch();
-    const { additionalInfo } = useAppSelector((state) => state.auth.user)
 
-     const { pageIndex, pageSize, sort, query, total } = useAppSelector(
-        (state) => state.ordersHistory.data.tableData
+    const roles = useAppSelector((state) => state.auth.user.roles)
+    const isAdmin = roles?.includes('Admin')
+
+    const initialTableData = useAppSelector((state) =>
+        isAdmin ? state.ordersList.data.adminTableData : state.ordersList.data.myTableData
+    )
+
+    const data = useAppSelector((state) =>
+        isAdmin ? state.ordersList.data.adminOrders : state.ordersList.data.myOrders
     )
 
 
-    const loading = useAppSelector((state) => state.ordersHistory.data.loading)
-
-    const data = useAppSelector((state) => state.ordersHistory.data.orderHistory)
-
-    const startDate = useAppSelector((state) => state.ordersHistory.data.startDate)
-
-    const endDate = useAppSelector((state) => state.ordersHistory.data.endDate)
-
-    const siteId = additionalInfo?.Data?.Id
-    
+    const loading = useAppSelector((state) => state.ordersList.data.loading)
     
     const fetchData = useCallback(() => {
-        
-        const start = startDate !== null ? dayjs.unix(startDate).toDate() : undefined;
-        const end = endDate !== null ? dayjs.unix(endDate).toDate() : undefined;
+        const { pageIndex, pageSize, query } = initialTableData
 
-        const currentPageIndex = pageIndex ?? 1; 
-        const currentPageSize = pageSize ?? 25;
+        const params = {
+            pageIndex: pageIndex ?? 1,
+            pageSize: pageSize ?? 25,
+            filterQuery: query || '',
+            filterOn: 'Name',
+            isAscending: true,
+        }
 
-        dispatch(getOrdersHistory({ start, end, siteId, offset: (currentPageIndex - 1) * currentPageSize, limit: currentPageSize }));
-        //console.log("orderHistory-data:", data)
-        
-    }, [dispatch, siteId, startDate, endDate, pageIndex, pageSize]);
+        if (isAdmin) {
+            dispatch(getAdminOrders(params))
+        } else {
+            dispatch(getMyOrders(params))
+        }
+    }, [dispatch, isAdmin, initialTableData])
+
 
     useEffect(() => {
         fetchData()
     }, [fetchData]);
-
-    const tableData = useMemo(
-        () => ({ pageIndex, pageSize, sort, query, total }),
-        [pageIndex, pageSize, sort, query, total]
-    )
-
-
-    const getTooltipContent = (row: any) => {
-        return (
-            <div>
-                <p><strong>Order #:</strong> {row.OrderNumber}</p>
-                <p><strong>Delivery Date:</strong> {new Date(row.DeliveryDate).toLocaleDateString()}</p>
-                <p><strong>Creator:</strong> {row.Creator}</p>
-                <p><strong>Contact:</strong> {row.Contact}</p>
-                <p><strong>Address 1:</strong> {row.Address1}</p>
-                <p><strong>City:</strong> {row.City}</p>
-                <p><strong>State:</strong> {row.State}</p>
-                <p><strong>Postal Code:</strong> {row.Postcode}</p>
-                <p><strong>Wholesaler:</strong> {row.Wholesaler}</p>
-                <p><strong>Instructions:</strong> {row.Instructions}</p>
-            </div>
-        );
-    }
     
     const columns: ColumnDef<any>[] = useMemo(
         () => [
             {
-                header: 'Order #',
-                accessorKey: 'OrderNumber',
-                enableSorting: false,
-            },
-            {
                 header: 'Created',
-                accessorKey: 'CreatedDate',
+                accessorKey: 'orderDate',
                 enableSorting: false,
                 cell: (props) => {
                     const row = props.row.original
@@ -122,26 +94,13 @@ const OrdersTable = () => {
                 },
             },
             {
-                header: 'Name',
-                accessorKey: 'Site',
-                enableSorting: false,
-                cell: (props) => {
-                    const row = props.row.original;
-                    return (
-                        <Tooltip title={getTooltipContent(row)}>
-                            <span className="cursor-pointer">{row.Site}</span>
-                        </Tooltip>
-                    );
-                },
-            },
-            {
-                header: 'Type',
-                accessorKey: 'Type',
+                header: 'Customer',
+                accessorKey: 'customerName',
                 enableSorting: false,
             },
             {
                 header: 'Status',
-                accessorKey: 'Status',
+                accessorKey: 'status',
                 enableSorting: false,
                 cell: (props) => {
                     const { Status, StatusColour } = props.row.original
@@ -157,18 +116,8 @@ const OrdersTable = () => {
                 },
             },
             {
-                header: 'Items',
-                accessorKey: 'ItemTotal',
-                enableSorting: false,
-            },
-            {
-                header: 'Quantity',
-                accessorKey: 'QtyTotal',
-                enableSorting: false,
-            },
-            {
                 header: '$ Total',
-                accessorKey: 'PriceTotal',
+                accessorKey: 'totalAmount',
                 enableSorting: false,
                 cell: (props) => {
                     const { PriceTotal } = props.row.original
@@ -192,28 +141,28 @@ const OrdersTable = () => {
     )
 
     const onPaginationChange = (page: number) => {
-        const newTableData = cloneDeep(tableData)
+        const newTableData = cloneDeep(initialTableData)
         newTableData.pageIndex = page
-        dispatch(setOrderHistoryData(newTableData))
-        // dispatch(setOrderHistoryData({
-        //     ...tableData,
-        //     pageIndex: page
-        // }));
-    };
+
+        if (isAdmin) {
+            dispatch(setAdminTableData(newTableData))
+        } else {
+            dispatch(setMyTableData(newTableData))
+        }
+    }
     
     const onSelectChange = (value: number) => {
-        const newTableData = cloneDeep(tableData)
+        const newTableData = cloneDeep(initialTableData)
         newTableData.pageSize = Number(value)
         newTableData.pageIndex = 1
-        dispatch(setOrderHistoryData(newTableData))
-        // dispatch(setOrderHistoryData({
-        //     ...tableData,
-        //     pageSize: value,
-        //     pageIndex: 1
-        // }));
-    };
-    
 
+        if (isAdmin) {
+            dispatch(setAdminTableData(newTableData))
+        } else {
+            dispatch(setMyTableData(newTableData))
+        }
+    }
+    
     return (
         <>
             <DataTable
@@ -222,9 +171,9 @@ const OrdersTable = () => {
                 data={data}
                 loading={loading}
                 pagingData={{
-                    total: tableData.total as number,
-                    pageIndex: tableData.pageIndex as number,
-                    pageSize: tableData.pageSize as number,
+                    total: initialTableData.total as number,
+                    pageIndex: initialTableData.pageIndex as number,
+                    pageSize: initialTableData.pageSize as number,
                 }}
                 onPaginationChange={onPaginationChange}
                 onSelectChange={onSelectChange}
@@ -232,5 +181,4 @@ const OrdersTable = () => {
         </>
     )
 }
-
 export default OrdersTable

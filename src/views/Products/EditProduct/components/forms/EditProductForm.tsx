@@ -78,6 +78,10 @@ const EditProductForm = ({ data }: EditProductFormProps) => {
             }
         }   
 
+        const  onCancelEdit = () => {
+            navigate('/products/products-list')
+        }
+
         return (
             <Formik
                 enableReinitialize
@@ -128,8 +132,6 @@ const EditProductForm = ({ data }: EditProductFormProps) => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormItem
                             label="Image URL"
-                            // invalid={(errors.imageUrl && touched.imageUrl) as boolean}
-                            // errorMessage={errors.imageUrl}
                         >
                             <Field
                                 type="text"
@@ -141,8 +143,6 @@ const EditProductForm = ({ data }: EditProductFormProps) => {
                         </FormItem>
                         <FormItem
                             label="Price"
-                            // invalid={(errors.price && touched.price) as boolean}
-                            // errorMessage={errors.price}
                         >
                             <Field
                                 type="number"
@@ -156,8 +156,6 @@ const EditProductForm = ({ data }: EditProductFormProps) => {
                         <FormItem
                             label="Description"
                             labelClass="!justify-start"
-                            // invalid={(errors.description && touched.description) as boolean}
-                            // errorMessage={errors.description}
                         >
                             <Field name="description">
                                 {({ field, form }: FieldProps) => (
@@ -173,8 +171,6 @@ const EditProductForm = ({ data }: EditProductFormProps) => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormItem
                                 label="Category"
-                                // invalid={(errors.category && touched.category) as boolean}
-                                // errorMessage={errors.category}
                             >
                                 <Field name="category">
                                     {({ field, form }: FieldProps) => (
@@ -196,8 +192,6 @@ const EditProductForm = ({ data }: EditProductFormProps) => {
                             </FormItem>
                             <FormItem
                                 label="Stock"
-                                // invalid={(errors.stock && touched.stock) as boolean}
-                                // errorMessage={errors.stock}
                             >
                                 <Field
                                     type="number"
@@ -212,10 +206,6 @@ const EditProductForm = ({ data }: EditProductFormProps) => {
                             <div className="col-span-1">
                                 <FormItem
                                     label="Color"
-                                    // invalid={
-                                    //     (errors.color && touched.color) as boolean
-                                    // }
-                                    // errorMessage={errors.color}
                                 >
                                     <Field name="color">
                                         {({ field, form }: FieldProps) => (
@@ -238,10 +228,6 @@ const EditProductForm = ({ data }: EditProductFormProps) => {
                             <div className="col-span-1">
                                 <FormItem
                                     label="Size"
-                                    // invalid={
-                                    //     (errors.size && touched.size) as unknown as boolean
-                                    // }
-                                    // errorMessage={errors.size as string}
                                 >
                                     <Field name="size">
                                         {({ field, form }: FieldProps) => (
@@ -266,7 +252,7 @@ const EditProductForm = ({ data }: EditProductFormProps) => {
                                     size="sm"
                                     className="ltr:mr-2 rtl:ml-2"
                                     variant="plain"
-                                    //onClick={onDialogClose}
+                                    onClick={onCancelEdit}
                                     type='button'
                                 >
                                     {t('common.cancel') as string}
