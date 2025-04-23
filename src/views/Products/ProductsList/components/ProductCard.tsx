@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { ADMIN } from '@/constants/roles.constant';
 import { HiPencil, HiTrash } from 'react-icons/hi';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
+import { addToCart } from '@/store/slices/cart/cartSlice';
 
 const CategoryIcon = ({ imageUrl }: { imageUrl: string }) => {
     return imageUrl ? (
@@ -102,9 +103,15 @@ const ProductCard = () => {
         dispatch(toggleProductDetailsDialog(true))
     }
 
-    const addToCart = (product: Product, event: React.MouseEvent) => {
+    const handleAddToCart  = (product: Product, event: React.MouseEvent) => {
         event.stopPropagation();
-        console.log("Product added to cart:", product);
+        dispatch(addToCart({
+            productId: product.productId,
+            productName: product.name,
+            price: product.price,
+            quantity: 1,
+            imageUrl: product.imageUrl,
+        }))
     }
 
     const handleEditClick = (product: Product, event: React.MouseEvent) => {
@@ -206,7 +213,7 @@ const ProductCard = () => {
                                     )}
                                    <Button
                                         variant="solid" size="sm"
-                                        onClick={(event) => addToCart(product, event)}
+                                        onClick={(event) => handleAddToCart (product, event)}
                                     >
                                         <span>{t('common.add') as string}</span>
                                    </Button>

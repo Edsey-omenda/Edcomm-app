@@ -6,10 +6,10 @@ import {
     createColumnHelper,
 } from '@tanstack/react-table'
 import { NumericFormat } from 'react-number-format'
-import { OrderItemInfo } from '@/@types/auth'
+import { OrderItem } from '../../types'
 
 type ContentTableProps = {
-    items?: OrderItemInfo[]
+    items?: OrderItem[]
 }
 
 type TFootRowsProps = {
@@ -31,12 +31,12 @@ const TFootRows = ({ label, value }: TFootRowsProps) => {
     )
 }
 
-const ProductColumn = ({ row }: { row: OrderItemInfo }) => {
+const ProductColumn = ({ row }: { row: OrderItem }) => {
     return (
         <div className="flex items-center">
             <div className="ml-4">
-                <h6 className="mb-2">{row.ProductName}</h6>
-                <p>{row.ProductCode}</p>
+                <h6 className="mb-2">{row.productName}</h6>
+                {/* <p>{row.productId}</p> */}
             </div>
         </div>
     );
@@ -53,51 +53,51 @@ const PriceAmount = ({ amount = 0 }: { amount?: number }) => {
     )
 }
 
-const calculateTotalCost = (items: OrderItemInfo[]): number => {
+const calculateTotalCost = (items: OrderItem[]): number => {
     return items.reduce((total, item) => {
-        const itemTotalPrice = (item.UnitPrice) * item.Qty;
+        const itemTotalPrice = (item.price) * item.quantity;
         return total + itemTotalPrice;
     }, 0);
 };
 
-const calculateTotalTax = (items: OrderItemInfo[]): number => {
-    return items.reduce((sum, item) => {
-        return sum + item.TaxAmount
-    }, 0)
-}
+// const calculateTotalTax = (items: OrderItem[]): number => {
+//     return items.reduce((sum, item) => {
+//         return sum + item.TaxAmount
+//     }, 0)
+// }
 
 
-const columnHelper = createColumnHelper<OrderItemInfo>()
+const columnHelper = createColumnHelper<OrderItem>()
 
 const columns = [
-    columnHelper.accessor('ProductName', {
+    columnHelper.accessor('productName', {
         header: 'Product',
         cell: (props) => {
             const row = props.row.original
             return <ProductColumn row={row} />
         },
     }),
-    columnHelper.accessor('UnitPrice', {
+    columnHelper.accessor('price', {
         header: 'Price',
         cell: (props) => {
             const row = props.row.original
-            return <PriceAmount amount={row.UnitPrice} />
+            return <PriceAmount amount={row.price} />
         },
     }),
-    columnHelper.accessor('Qty', {
+    columnHelper.accessor('quantity', {
         header: 'Quantity',
     }),
-    columnHelper.accessor('TaxAmount', {
-        header: 'Tax',
-    }),
-    columnHelper.accessor('TotalExTax', {
-        header: 'Total',
-        cell: (props) => {
-            const row = props.row.original
-            const totalPrice = ((row.UnitPrice  * row.Qty) + row.TaxAmount)
-            return <PriceAmount amount={totalPrice} />
-        },
-    }),
+    // columnHelper.accessor('TaxAmount', {
+    //     header: 'Tax',
+    // }),
+    // columnHelper.accessor('TotalExTax', {
+    //     header: 'Total',
+    //     cell: (props) => {
+    //         const row = props.row.original
+    //         const totalPrice = ((row.UnitPrice  * row.Qty) + row.TaxAmount)
+    //         return <PriceAmount amount={totalPrice} />
+    //     },
+    // }),
 ]
 
 const ContentTable = ({ items = [] }: ContentTableProps) => {
@@ -109,9 +109,9 @@ const ContentTable = ({ items = [] }: ContentTableProps) => {
 
     const totalExTax = calculateTotalCost(items);
     
-    const totalTax = calculateTotalTax(items);
+    // const totalTax = calculateTotalTax(items);
 
-    const totalIncTax = totalExTax + totalTax
+    const totalIncTax = totalExTax
 
     return (
         <Table>
@@ -151,7 +151,7 @@ const ContentTable = ({ items = [] }: ContentTableProps) => {
             </TBody>
             <TFoot>
                 <TFootRows label="Subtotal" value={totalExTax} />
-                <TFootRows label="Tax" value={totalTax} />
+                {/* <TFootRows label="Tax" value={totalTax} /> */}
                 <Tr>
                     <Td className="!border-t-0" colSpan={3}></Td>
                     <Td className="font-semibold text-base">Total</Td>

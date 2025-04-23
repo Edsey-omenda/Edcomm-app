@@ -5,21 +5,48 @@ import { NumericFormat } from 'react-number-format'
 import type {
     DataTableResetHandle,
     ColumnDef,
-    Row,
 } from '@/components/shared/DataTable'
-import { getAdminOrders, getMyOrders, setAdminTableData, setMyTableData, useAppDispatch, useAppSelector } from '../store'
+import { 
+    getAdminOrders, 
+    getMyOrders, 
+    setAdminTableData, 
+    setMyTableData, 
+    useAppDispatch, 
+    useAppSelector 
+} from '../store'
 import cloneDeep from 'lodash/cloneDeep'
-import Tag from '@/components/ui/Tag'
 import { HiOutlineEye } from 'react-icons/hi'
 import useThemeClass from '@/utils/hooks/useThemeClass'
 import { useNavigate } from 'react-router-dom'
+import Badge from '@/components/ui/Badge'
+import { Order } from '../../types'
 
-const ActionColumn = ({ row }: { row: any }) => {
+export const mapStatusToStyle = (
+    statuses: { name: string; color: string }[]
+): Record<
+    string,
+    {
+        label: string
+        dotStyle: React.CSSProperties
+        textStyle: React.CSSProperties
+    }
+> => {
+    return statuses.reduce((acc, status) => {
+        acc[status.name] = {
+            label: status.name,
+            dotStyle: { backgroundColor: status.color },
+            textStyle: { color: status.color },
+        }
+        return acc
+    }, {} as Record<string, { label: string; dotStyle: React.CSSProperties; textStyle: React.CSSProperties }>)
+}
+
+const ActionColumn = ({ row }: { row: Order }) => {
     const { textTheme } = useThemeClass()
     const navigate = useNavigate()
 
     const onView = useCallback(() => {
-        navigate(`/orderlist/${row.Id}`)
+        navigate(`/orders/order-details/${row.orderId}`)
         //console.log("Order-details", row)
     }, [navigate, row])
 
@@ -53,8 +80,11 @@ const OrdersTable = () => {
         isAdmin ? state.ordersList.data.adminOrders : state.ordersList.data.myOrders
     )
 
-
     const loading = useAppSelector((state) => state.ordersList.data.loading)
+    const orderStatuses = useAppSelector((state) => state.ordersList.data.orderStatuses)
+
+    const statusStyleMap = useMemo(() => mapStatusToStyle(orderStatuses), [orderStatuses])
+
     
     const fetchData = useCallback(() => {
         const { pageIndex, pageSize, query } = initialTableData
@@ -63,7 +93,7 @@ const OrdersTable = () => {
             pageIndex: pageIndex ?? 1,
             pageSize: pageSize ?? 25,
             filterQuery: query || '',
-            filterOn: 'Name',
+            filterOn: 'CustomerName',
             isAscending: true,
         }
 
@@ -87,7 +117,7 @@ const OrdersTable = () => {
                 enableSorting: false,
                 cell: (props) => {
                     const row = props.row.original
-                    const date = new Date(row.CreatedDate)
+                    const date = new Date(row.orderDate)
                     return (
                         <span>{date.toLocaleDateString()}</span>
                     )
@@ -101,30 +131,38 @@ const OrdersTable = () => {
             {
                 header: 'Status',
                 accessorKey: 'status',
-                enableSorting: false,
                 cell: (props) => {
-                    const { Status, StatusColour } = props.row.original
+                    const { status } = props.row.original
+            
+                    const style = statusStyleMap[status] ?? {
+                        label: status,
+                        dotClass: 'bg-gray-400',
+                        textClass: 'text-gray-600',
+                    }
+            
                     return (
                         <div className="flex items-center">
-                            <Tag style={{ color: StatusColour, backgroundColor: `${StatusColour}20`  }} 
-                            className="rounded border-0"
+                            <Badge style={style.dotStyle} />
+                            <span
+                                className="ml-2 rtl:mr-2 capitalize font-semibold"
+                                style={style.textStyle}
                             >
-                                {Status}
-                            </Tag>
+                                {style.label}
+                            </span>
                         </div>
                     )
                 },
-            },
+            },            
             {
                 header: '$ Total',
                 accessorKey: 'totalAmount',
                 enableSorting: false,
                 cell: (props) => {
-                    const { PriceTotal } = props.row.original
+                    const { totalAmount } = props.row.original
                     return (
                         <NumericFormat
                             displayType="text"
-                            value={(Math.round(PriceTotal * 100) / 100).toFixed(2)}
+                            value={(Math.round(totalAmount * 100) / 100).toFixed(2)}
                             prefix={'$'}
                             thousandSeparator={true}
                         />

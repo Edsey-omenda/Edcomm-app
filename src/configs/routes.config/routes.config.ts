@@ -87,7 +87,7 @@ export const protectedRoutes = [
     },
     {
         key: 'orders.orderDetails',
-        path: '/orders/order-details',
+        path: '/orders/order-details/:id',
         component: lazy(() => import('@/views/Orders/OrderDetails')),
         roles: [ADMIN, CUSTOMER],
         meta: {
@@ -112,4 +112,22 @@ export const protectedRoutes = [
             header: '',
         },
     },
+    {
+        key: 'cart.cartScreen',
+        path: '/cart/your-cart',
+        component: lazy(() => import('@/views/Cart/Cart')),
+        roles: [ADMIN, CUSTOMER],
+        meta: {
+            header: '',
+        },
+    },
+    {
+        key: 'cart.checkout',
+        path: '/checkout/payment',
+        component: lazy(() => import('@/views/Checkout/Checkout')),
+        roles: [ADMIN, CUSTOMER],
+        meta: {
+            header: '',
+        },
+    }
 ]

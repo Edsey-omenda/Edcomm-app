@@ -1,14 +1,14 @@
 import classNames from 'classnames'
 import Drawer from '@/components/ui/Drawer'
-import { HiOutlineCog } from 'react-icons/hi'
-import SidePanelContent, { SidePanelContentProps } from './SidePanelContent'
+import { HiOutlineShoppingCart } from 'react-icons/hi'
+import CartContent, { CartContentProps } from './CartDrawerContent'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
-import { setPanelExpand, useAppSelector, useAppDispatch } from '@/store'
+import { setPanelExpand, useAppSelector, useAppDispatch, selectTotalItems } from '@/store'
 import type { CommonProps } from '@/@types/common'
 
-type SidePanelProps = SidePanelContentProps & CommonProps
+type CartProps = CartContentProps & CommonProps
 
-const _SidePanel = (props: SidePanelProps) => {
+const _CartDrawer = (props: CartProps) => {
     const dispatch = useAppDispatch()
 
     const { className, ...rest } = props
@@ -16,6 +16,8 @@ const _SidePanel = (props: SidePanelProps) => {
     const panelExpand = useAppSelector((state) => state.theme.panelExpand)
 
     const direction = useAppSelector((state) => state.theme.direction)
+
+    const totalItems = useAppSelector(selectTotalItems)
 
     const openPanel = () => {
         dispatch(setPanelExpand(true))
@@ -36,22 +38,30 @@ const _SidePanel = (props: SidePanelProps) => {
                 onClick={openPanel}
                 {...rest}
             >
-                <HiOutlineCog />
+                <div className="relative">
+                    <HiOutlineShoppingCart className="text-2xl" />
+
+                    {totalItems > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">
+                            {totalItems}
+                        </span>
+                    )}
+                </div>
             </div>
             <Drawer
-                title="Side Panel"
+                title={`Your Cart - ${totalItems} Item${totalItems > 1 ? 's' : ''}`}
                 isOpen={panelExpand}
                 placement={direction === 'rtl' ? 'left' : 'right'}
-                width={375}
+                width={425}
                 onClose={closePanel}
                 onRequestClose={closePanel}
             >
-                <SidePanelContent callBackClose={closePanel} />
+                <CartContent callBackClose={closePanel} />
             </Drawer>
         </>
     )
 }
 
-const SidePanel = withHeaderItem(_SidePanel)
+const CartDrawer = withHeaderItem(_CartDrawer)
 
-export default SidePanel
+export default CartDrawer

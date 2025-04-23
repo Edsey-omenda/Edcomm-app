@@ -5,6 +5,25 @@ export type OrderItem = {
     price: number;
 };
 
+export type OrderItemDTO = {
+    productId: string;
+    quantity: number;
+  }
+  
+export type OrderStatus = {
+    id: string
+    name: string
+    color: string
+}
+
+export type orderStatusColor = {
+    label: string
+    dotClass: string
+    textClass: string
+}
+
+export type OrderStatusList = OrderStatus[]
+
 export type Order = {
     orderId: string
     status: string

@@ -20,6 +20,7 @@
         "deleted": "Deleted",
         "cancel": "Cancel",
         "update": "Update",
+        "save": "Save",
         "deleteConfirmation": "Are you sure you want to delete "
     },
     "forms": {

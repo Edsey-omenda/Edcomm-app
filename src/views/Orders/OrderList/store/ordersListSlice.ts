@@ -7,11 +7,13 @@ import { TableQueries } from '@/@types/common';
 import { 
     GetOrdersListRequest, 
     GetOrdersListResponse, 
-    OrdersList 
+    OrdersList, 
+    OrderStatusList
 } from '../../types';
 import { 
     apiGetAdminOrders, 
-    apiGetMyOrders 
+    apiGetMyOrders, 
+    apiGetOrderStatuses
 } from '@/services/OrderService';
 
 export const SLICE_NAME = 'ordersList'
@@ -37,6 +39,13 @@ export const getMyOrders = createAsyncThunk(
         return response.data
     }
 )
+
+export const getOrderStatuses = createAsyncThunk(
+    SLICE_NAME + '/getOrderStatuses',
+    async () => {
+        const response = await apiGetOrderStatuses<OrderStatusList>()
+        return response.data
+    })
 
 export const initialAdminOrdersData: TableQueries = {
     total: 0,
@@ -66,6 +75,7 @@ export type OrdersListState = {
     loading: boolean;
     adminOrders: OrdersList;
     myOrders: OrdersList;
+    orderStatuses: OrderStatusList;
     adminTableData: TableQueries;
     myTableData: TableQueries;
 }
@@ -74,6 +84,7 @@ const initialState: OrdersListState = {
     loading: false,
     adminOrders: [],
     myOrders: [],
+    orderStatuses: [],
     adminTableData: initialAdminOrdersData,
     myTableData: initialMyOrdersData
 }
@@ -117,6 +128,16 @@ const ordersListSlice = createSlice({
                 state.myTableData.total = action.payload.filteredItems;
             })
             .addCase(getMyOrders.rejected, (state) => {
+                state.loading = false;
+            })
+            .addCase(getOrderStatuses.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getOrderStatuses.fulfilled, (state, action) => {
+                state.loading = false;
+                state.orderStatuses = action.payload
+            })
+            .addCase(getOrderStatuses.rejected, (state) => {
                 state.loading = false;
             })
     },
