@@ -5,7 +5,7 @@ import dynamicImport from 'vite-plugin-dynamic-import'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/edcomm-app/',
+  base: '/edcomm-app/', //base url for the app
   plugins: [react({
     babel: {
       plugins: [
