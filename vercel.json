@@ -1,0 +1,9 @@
+{
+    "rewrites": [
+      {
+        "source": "/edcomm-app/:path*",
+        "destination": "/index.html"
+      }
+    ]
+  }
+  
