@@ -65,6 +65,7 @@ const ProductCard = () => {
     )
 
     const data = useAppSelector((state) => state?.productList?.productsList)
+    console.log("object", data)
     const selectedProduct = useAppSelector(
         (state) => state.productList.selectedProduct
     )
@@ -186,7 +187,15 @@ const ProductCard = () => {
                                 <h3 className="mb-2 mt-4 text-sm font-semibold truncate text-heading">
                                     {product.name}
                                 </h3>
-                                <p className="text-xs text-muted">{product.stock}</p>
+                                <div className="text-sm text-muted">
+                                    {product.stock === 0 ? (
+                                        <div className="bg-red-100 text-red-800 text-sm font-medium px-3 py-2 rounded">
+                                            Out of Stock
+                                        </div>
+                                    ) : (
+                                        `${product.stock} in stock`
+                                    )}
+                                </div>
                                 <div className="relative flex items-center justify-between mt-7 min-h-6 md:mt-8">
                                     <div className="relative">
                                         <span className="text-sm font-semibold text-accent md:text-base">

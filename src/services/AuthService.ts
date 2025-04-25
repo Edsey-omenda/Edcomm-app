@@ -28,7 +28,6 @@ export async function apiSignIn(data: SignInCredential): Promise<SignInResponse>
   return await axios
     .post(`${BASE_URL}/Auth/Login`, data)
     .then((response) => {
-      console.log("response", response)
       return {
         success: true,
         token: {
@@ -41,7 +40,7 @@ export async function apiSignIn(data: SignInCredential): Promise<SignInResponse>
           fullName: response.data.fullName,
           email: response.data.email,
           roles: response.data.roles,
-          avatar: '' // Can be extended later
+          avatar: ''
         }
       }
     })
@@ -54,7 +53,6 @@ export async function apiSignIn(data: SignInCredential): Promise<SignInResponse>
 
 
 export async function apiSignUp(data: SignUpCredential) {
-  console.log('Calling API with:', data);
   return ApiService.fetchData<SignUpResponse>({
     url: `${BASE_URL}/Auth/Register`,
     method: 'post',

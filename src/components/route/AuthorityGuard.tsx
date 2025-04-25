@@ -10,9 +10,7 @@ type AuthorityGuardProps = PropsWithChildren<{
 
 const AuthorityGuard = (props: AuthorityGuardProps) => {
     const { userAuthority = [], roles = [], children } = props
-    console.log("userAuthority:", userAuthority);
     const roleMatched = useAuthority(userAuthority, roles ?? [])
-    console.log("Role Matched:", roleMatched);
 
     //return <>{roleMatched ? children : <AccessDenied />}</>
     return roleMatched ? <>{children}</> : <Navigate to='/access-denied' replace />

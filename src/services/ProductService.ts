@@ -9,8 +9,8 @@ export async function apiGetProducts<T, U>(
     data: GetProductsRequest
 ) {
 
-    console.log("Calling API with request:", data);
-    console.log('Data Query: ' + JSON.stringify(data))
+    //console.log("Calling API with request:", data);
+    //console.log('Data Query: ' + JSON.stringify(data))
 
     const params = {
         filterOn: data.filterOn ?? 'Name',

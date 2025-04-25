@@ -6,6 +6,9 @@ import {
   useAppSelector,
   useAppDispatch,
   TokenState,
+  updateCartState,
+  clearCart,
+  CartState,
 //   resetCart,
 //   updateCartState,
 //   CartState,
@@ -27,7 +30,7 @@ function useAuth() {
 
   const { token, signedIn } = useAppSelector((state) => state.auth.session)
   const userId = useAppSelector((state) => state.auth.user.userId)
-  //const cartState = useAppSelector((state) => state.orderline)
+  const cartState = useAppSelector((state) => state.cart)
 
   const signIn = async (values: SignInCredential): Promise<{ status: Status; message: string } | undefined> => {
     try {
@@ -46,6 +49,13 @@ function useAuth() {
 
                 if (response.userInfo) {
                     dispatch(setUser(response.userInfo));
+                    const savedCartState = localStorage.getItem(`cartState_${response.userInfo.userId}`);
+                    //console.log("logging-in-cartState:", savedCartState)
+                    if (savedCartState) {
+                      const parsedCartState: CartState = JSON.parse(savedCartState)
+                      dispatch(updateCartState(parsedCartState))
+                    }
+
                     const redirectUrl = query.get(REDIRECT_URL_KEY)
                     navigate(
                       redirectUrl ? redirectUrl : appConfig.authenticatedEntryPath
@@ -102,11 +112,10 @@ const signUp = async (values: SignUpCredential) => {
 
   const handleSignOut = () => {
     // Save the current cart state to local storage before logging out.
-    
-    // if (userId) {
-    //   localStorage.setItem(`cartState_${userId}`, JSON.stringify(cartState))
-    //   console.log("exiting-cartState:", JSON.stringify(cartState))
-    // } 
+    if (userId) {
+      localStorage.setItem(`cartState_${userId}`, JSON.stringify(cartState))
+      //console.log("exiting-cartState:", JSON.stringify(cartState))
+    } 
     dispatch(signOutSuccess())
     dispatch(
       setUser({
