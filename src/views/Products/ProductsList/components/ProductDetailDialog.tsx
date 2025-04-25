@@ -106,10 +106,18 @@ const ProductDetailDialog: React.FC = () => {
                             <div className='w-full sm:w-1/2 pl-0 sm:pl-6 flex flex-col justify-between'>
                                 <div>
                                     <h4 className="text-3xl font-semibold mb-2">{selectedProduct?.name}</h4>
-                                    <div className="flex items-center mb-4">
-                                        <p className="text-xl text-gray-600 mr-4 mt-4">{selectedProduct?.stock}</p>
+                                    <div className="text-sm text-muted">
+                                    <p className="font-medium mb-1">Stock:</p>
+                                        {selectedProduct?.stock === 0 ? (
+                                            <div className="bg-red-100 text-red-800 text-sm font-medium px-3 py-2 rounded">
+                                                Out of Stock
+                                            </div>
+                                        ) : (
+                                            `${selectedProduct?.stock} in stock`
+                                        )}
                                     </div>
                                     <div className="mt-4">
+                                        <p className="font-medium text-sm text-muted mb-1">Price:</p>
                                         <p className="text-xl "> ${selectedProduct?.price ?? 0}</p>
                                     </div>
                                     <div className="mt-4 space-y-3">
