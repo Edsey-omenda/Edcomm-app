@@ -65,10 +65,11 @@ const ProductCard = () => {
     )
 
     const data = useAppSelector((state) => state?.productList?.productsList)
-    console.log("Product Data:", data ?? 'No data yet');
     const selectedProduct = useAppSelector(
         (state) => state.productList.selectedProduct
     )
+
+    const cartItems = useAppSelector((state) => state.cart.items);
 
     useEffect(() => {
         fetchData()
@@ -103,16 +104,24 @@ const ProductCard = () => {
         dispatch(toggleProductDetailsDialog(true))
     }
 
-    const handleAddToCart  = (product: Product, event: React.MouseEvent) => {
+    const handleAddToCart = (product: Product, event: React.MouseEvent) => {
         event.stopPropagation();
-        dispatch(addToCart({
-            productId: product.productId,
-            productName: product.name,
-            price: product.price,
-            quantity: 1,
-            imageUrl: product.imageUrl,
-        }))
-    }
+    
+        const alreadyInCart = cartItems.some(item => item.productId === product.productId);
+    
+        if (alreadyInCart) {
+            dispatch(setSelectedProduct(product));
+            dispatch(toggleProductDetailsDialog(true));
+        } else {
+            dispatch(addToCart({
+                productId: product.productId,
+                productName: product.name,
+                price: product.price,
+                quantity: 1,
+                imageUrl: product.imageUrl,
+            }));
+        }
+    };
 
     const handleEditClick = (product: Product, event: React.MouseEvent) => {
         event.stopPropagation();

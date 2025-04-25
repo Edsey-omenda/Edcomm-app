@@ -18,7 +18,7 @@ BaseService.interceptors.request.use(
         const persistData = deepParseJson(rawPersistData)
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let accessToken = (persistData as any).auth.session.token.accessToken
+        let accessToken = (persistData as any).auth?.session?.token?.accessToken
 
         if (!accessToken) {
             const { auth } = store.getState()

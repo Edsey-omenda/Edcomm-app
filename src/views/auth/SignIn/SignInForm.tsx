@@ -51,17 +51,26 @@ const SignInForm = (props: SignInFormProps) => {
         const result = await signIn({ email, password })
 
         if (result?.status === 'failed') {
-            setMessage(result.message)
+            setMessage({ text: result.message, type: 'danger' })
+        } else if (result?.status === 'success') {
+            setMessage({ text: result.message, type: 'success' })
         }
 
         setSubmitting(false)
     }
 
+    const isValidMessage = typeof message?.text === 'string' && message?.type
+
     return (
         <div className={className}>
-            {message && (
+            {/* {message && (
                 <Alert showIcon className="mb-4" type="danger">
                     <>{message}</>
+                </Alert>
+            )} */}
+            {isValidMessage && (
+                <Alert showIcon className="mb-4" type={message.type as 'danger' | 'success'}>
+                    {message.text}
                 </Alert>
             )}
             <Formik

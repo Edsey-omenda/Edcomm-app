@@ -54,6 +54,7 @@ export async function apiSignIn(data: SignInCredential): Promise<SignInResponse>
 
 
 export async function apiSignUp(data: SignUpCredential) {
+  console.log('Calling API with:', data);
   return ApiService.fetchData<SignUpResponse>({
     url: `${BASE_URL}/Auth/Register`,
     method: 'post',

@@ -14,6 +14,8 @@ import { Notification } from '@/components/ui/Notification';
 import { useTranslation } from 'react-i18next';
 import Tooltip from '@/components/ui/Tooltip';
 import classNames from 'classnames';
+import { Product } from '../../types';
+import { addToCart, decreaseQuantity, increaseQuantity } from '@/store';
 
 
 
@@ -25,18 +27,26 @@ const ProductDetailDialog: React.FC = () => {
     const [selectedColor, setSelectedColor] = useState<string | null>(null)
 
     const { productDetailDialog, selectedProduct } = useAppSelector((state) => state.productList);
+
+    const cartItems = useAppSelector((state) => state.cart.items) // Example
+    const cartItem = cartItems.find((item) => item.productId === selectedProduct?.productId)
+
+    const quantity = cartItem?.quantity || 0
+    const isInCart = quantity > 0
     
     const onDialogClose = () => {
         dispatch(setSelectedProduct(null));
         dispatch(toggleProductDetailsDialog(false));
     };
 
-    const handleIncrease = () => {
+    const handleIncrease = (product: Product) => {
         console.log("Cart Quantity increased!")
+        dispatch(increaseQuantity(product.productId))
     } 
 
-    const handleDecrease = () => {
+    const handleDecrease = (product: Product) => {
         console.log("Cart Quantity decreased!")
+        dispatch(decreaseQuantity(product.productId))
     } 
 
     const handleRemove = () => {
@@ -49,9 +59,26 @@ const ProductDetailDialog: React.FC = () => {
     };
 
     const handleAddToCart = () => {
-        console.log("Add to cart!")
-    };
-
+        if (!selectedProduct) return;
+    
+        const { productId, name, price, imageUrl } = selectedProduct;
+        const cartItem = {
+            productId,
+            productName: name,
+            price,
+            imageUrl,
+            quantity: 1,
+            selectedColor,
+        };
+    
+        dispatch(addToCart(cartItem));
+    
+        toast.push(
+            <Notification title="Success" type="success">
+                {`${name} added to cart!`}
+            </Notification>
+        );
+    };    
 
 
     return (
@@ -121,6 +148,7 @@ const ProductDetailDialog: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="mt-4">
+                                {!isInCart ? (
                                         <Button
                                             variant="solid"
                                             size="md"
@@ -128,22 +156,25 @@ const ProductDetailDialog: React.FC = () => {
                                         >
                                             <span>{t('common.add') as string}</span>
                                         </Button>
+                                ) : (
                                         <div className="flex items-center">
                                             <Button
                                                 icon={<FiMinus />}
                                                 style={{ borderRadius: 0 }}
                                                 variant="twoTone"
                                                 size="md"
-                                                onClick={handleDecrease}
+                                                onClick={() => selectedProduct && handleDecrease(selectedProduct)}
                                             />
+                                            <div className="px-4 text-lg font-semibold">{quantity}</div>
                                             <Button
                                                 icon={<FiPlus />}
                                                 style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
                                                 variant="twoTone"
                                                 size="md"
-                                                onClick={handleIncrease}
+                                                onClick={() => selectedProduct && handleIncrease(selectedProduct)}
                                             />
                                         </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

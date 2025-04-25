@@ -10,6 +10,7 @@ import { Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import type { CommonProps } from '@/@types/common'
 import type { AxiosError } from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 interface ForgotPasswordFormProps extends CommonProps {
     disableSubmit?: boolean
@@ -27,6 +28,7 @@ const validationSchema = Yup.object().shape({
 const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
     const { disableSubmit = false, className, signInUrl = '/sign-in' } = props
 
+    const navigate = useNavigate()
     const [emailSent, setEmailSent] = useState(false)
 
     const [message, setMessage] = useTimeOutMessage()
@@ -41,15 +43,23 @@ const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
             if (resp.success) {
                 setSubmitting(false)
                 setEmailSent(true)
+                navigate('/verify-code', {
+                    state: {
+                        email: values.email,
+                        timestamp: new Date()
+                    }
+                })
             }
         } catch (errors) {
-            setMessage(
-                (errors as AxiosError<{ message: string }>)?.response?.data
-                    ?.message || (errors as Error).toString()
-            )
+            // setMessage(
+            //     (errors as AxiosError<{ message: string }>)?.response?.data
+            //         ?.message || (errors as Error).toString()
+            // )
             setSubmitting(false)
         }
     }
+
+    const isValidMessage = typeof message?.text === 'string' && message?.type
 
     return (
         <div className={className}>
@@ -58,7 +68,7 @@ const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
                     <>
                         <h3 className="mb-1">Check your email</h3>
                         <p>
-                            We have sent a password recovery instruction to your
+                            We have sent a password reset token to your
                             email
                         </p>
                     </>
@@ -72,9 +82,9 @@ const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
                     </>
                 )}
             </div>
-            {message && (
-                <Alert showIcon className="mb-4" type="danger">
-                    {message}
+            {isValidMessage && (
+                <Alert showIcon className="mb-4" type={message.type as 'danger' | 'success'}>
+                    {message.text}
                 </Alert>
             )}
             <Formik

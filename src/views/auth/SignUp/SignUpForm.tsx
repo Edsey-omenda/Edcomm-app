@@ -9,6 +9,7 @@ import { Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import useAuth from '@/utils/hooks/useAuth'
 import type { CommonProps } from '@/@types/common'
+import { toast } from '@/components/ui/toast'
 
 interface SignUpFormProps extends CommonProps {
     disableSubmit?: boolean
@@ -27,10 +28,9 @@ const validationSchema = Yup.object().shape({
         .email('Invalid email')
         .required('Please enter your email'),
     password: Yup.string().required('Please enter your password'),
-    confirmPassword: Yup.string().oneOf(
-        [Yup.ref('password')],
-        'Your passwords do not match'
-    ),
+    confirmPassword: Yup.string()
+        .required('Please confirm your password')
+        .oneOf([Yup.ref('password')], 'Your passwords do not match'),
 })
 
 const SignUpForm = (props: SignUpFormProps) => {
@@ -42,24 +42,31 @@ const SignUpForm = (props: SignUpFormProps) => {
 
     const onSignUp = async (
         values: SignUpFormSchema,
-        setSubmitting: (isSubmitting: boolean) => void
+        setSubmitting: (isSubmitting: boolean) => void,
     ) => {
         const { fullName, password, email } = values
         setSubmitting(true)
-        const result = await signUp({ fullName, password, email })
-
+        console.log('Submitting to signUp:', { fullName, email, password })
+        const result = await signUp({ fullName, password, email, roles: [] })
+        console.log("object", result)
         if (result?.status === 'failed') {
-            setMessage(result.message)
+            toast.push(result.message)
+            setMessage({ text: result.message, type: 'danger' })
+        } else if (result?.status === 'success') {
+            toast.push(result.message)
+            setMessage({ text: result.message, type: 'success' })
         }
 
         setSubmitting(false)
     }
 
+    const isValidMessage = typeof message?.text === 'string' && message?.type
+
     return (
         <div className={className}>
-            {message && (
-                <Alert showIcon className="mb-4" type="danger">
-                    {message}
+            {isValidMessage && (
+                <Alert showIcon className="mb-4" type={message.type as 'danger' | 'success'}>
+                    {message.text}
                 </Alert>
             )}
             <Formik
@@ -76,8 +83,7 @@ const SignUpForm = (props: SignUpFormProps) => {
                     } else {
                         setSubmitting(false)
                     }
-                }}
-            >
+                }}            >
                 {({ touched, errors, isSubmitting }) => (
                     <Form>
                         <FormContainer>

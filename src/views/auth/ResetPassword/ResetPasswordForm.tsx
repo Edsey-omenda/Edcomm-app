@@ -6,7 +6,7 @@ import PasswordInput from '@/components/shared/PasswordInput'
 import ActionLink from '@/components/shared/ActionLink'
 import { apiResetPassword } from '@/services/AuthService'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
 import type { CommonProps } from '@/@types/common'
@@ -34,6 +34,8 @@ const ResetPasswordForm = (props: ResetPasswordFormProps) => {
     const { disableSubmit = false, className, signInUrl = '/sign-in' } = props
 
     const [resetComplete, setResetComplete] = useState(false)
+    const location = useLocation()
+    const { email, tokenKey } = location.state || {}
 
     const [message, setMessage] = useTimeOutMessage()
 
@@ -46,19 +48,24 @@ const ResetPasswordForm = (props: ResetPasswordFormProps) => {
         const { password } = values
         setSubmitting(true)
         try {
-            const resp = await apiResetPassword({ password })
-            if (resp.data) {
-                setSubmitting(false)
+            const resp = await apiResetPassword({ newPassword: password, email: email, token: tokenKey  })
+            if (resp.success) {
                 setResetComplete(true)
+            } else {
+                setMessage({ text: resp.message, type: 'danger' })
             }
         } catch (errors) {
-            setMessage(
-                (errors as AxiosError<{ message: string }>)?.response?.data
-                    ?.message || (errors as Error).toString()
-            )
+            setMessage({
+                text:
+                    (errors as AxiosError<{ message: string }>)?.response?.data
+                        ?.message || (errors as Error).toString(),
+                type: 'danger',
+            })
             setSubmitting(false)
         }
     }
+
+    const isValidMessage = typeof message?.text === 'string' && message?.type
 
     const onContinue = () => {
         navigate('/sign-in')
@@ -81,9 +88,9 @@ const ResetPasswordForm = (props: ResetPasswordFormProps) => {
                     </>
                 )}
             </div>
-            {message && (
-                <Alert showIcon className="mb-4" type="danger">
-                    {message}
+            {isValidMessage && (
+                <Alert showIcon className="mb-4" type={message.type as 'danger' | 'success'}>
+                    {message.text}
                 </Alert>
             )}
             <Formik

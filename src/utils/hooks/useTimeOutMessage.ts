@@ -1,19 +1,26 @@
 import { useEffect, useState } from 'react'
 
+export type MessageType = 'success' | 'danger' | null
+
+export interface MessageState {
+    text: string
+    type: MessageType
+}
+
 function useTimeOutMessage(
     interval = 3000
-): [string, React.Dispatch<React.SetStateAction<string>>] {
-    const [message, setMessage] = useState('')
+): [MessageState, React.Dispatch<React.SetStateAction<MessageState>>] {
+    const [message, setMessage] = useState<MessageState>({ text: '', type: null })
 
     useEffect(() => {
         if (message) {
-            const timeout = setTimeout(() => setMessage(''), interval)
+            const timeout = setTimeout(() => setMessage({ text: '', type: null }), interval)
             return () => {
                 clearTimeout(timeout)
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [message])
+    }, [message.text])
 
     return [message, setMessage]
 }

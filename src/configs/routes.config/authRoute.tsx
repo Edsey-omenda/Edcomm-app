@@ -21,6 +21,12 @@ const authRoute: Routes = [
         roles: [],
     },
     {
+        key: 'verifyCode',
+        path: `/verify-code`,
+        component: lazy(() => import('@/views/auth/VerifyCode')),
+        roles: [],
+    },
+    {
         key: 'resetPassword',
         path: `/reset-password`,
         component: lazy(() => import('@/views/auth/ResetPassword')),
